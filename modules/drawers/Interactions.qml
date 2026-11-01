@@ -213,13 +213,10 @@ CustomMouseArea {
     onPressed: event => dragStart = Qt.point(event.x, event.y)
 
     onContainsMouseChanged: {
-        if (!containsMouse && popouts.currentName === "appmenu") {
-            const staysInAppMenu = overAppMenu(mouseX, mouseY) || inPopout(mouseX, mouseY);
-            // A child MouseArea can take pointer ownership from this full-screen
-            // handler while the pointer is still inside the menu or its popout.
-            if (staysInAppMenu)
-                return;
-        }
+        // Application menus are dismissed by HyprlandFocusGrab on an outside
+        // click. Leaving their area with the pointer alone must not close them.
+        if (!containsMouse && popouts.currentName === "appmenu")
+            return;
         if (!containsMouse) {
             root.armedAction = HotCornerAction.None;
             hotCornerTimer.stop();
@@ -420,7 +417,7 @@ CustomMouseArea {
             const triggerPoint = trigger ? root.mapToItem(trigger, x, y) : Qt.point(-1, -1);
             if ((!trigger || !trigger.contains(triggerPoint)) && !inPopout(x, y))
                 popouts.hasCurrent = false;
-        } else if (popouts.currentName === "appmenu" && inPopout(x, y)) {
+        } else if (popouts.currentName === "appmenu") {
             // Keep the application menu open while moving from its title to the
             // shared popout surface. Generic bar hit-testing does not know the
             // app-menu strip and would otherwise close this popout immediately.

@@ -212,6 +212,8 @@ StyledWindow {
                 return true;
             if (!conf.dashboard.showOnHover && s.dashboard && conf.dashboard.enabled)
                 return true;
+            if (panels.popouts.hasCurrent && panels.popouts.currentName === "appmenu")
+                return true;
             if (panels.popouts.currentName.startsWith("traymenu") && (panels.popouts.current as StackView)?.depth > 1)
                 return true;
             return false;
@@ -300,10 +302,14 @@ StyledWindow {
             x: bar.insetLeft
             y: 0
             implicitWidth: appMenuBar.visible ? appMenuBar.x + appMenuBar.width + Tokens.padding.medium - x : 0
+            // Keep the full strip surface so its labels remain legible. Square
+            // the lower edge while closed to avoid leaving a rounded bulge.
             implicitHeight: appMenuBar.visible ? appMenuBar.y + appMenuBar.height : 0
             radius: Tokens.rounding.extraLarge
             topLeftRadius: 0
             topRightRadius: 0
+            bottomLeftRadius: panels.popouts.hasCurrent && panels.popouts.currentName === "appmenu" ? Tokens.rounding.extraLarge : 0
+            bottomRightRadius: panels.popouts.hasCurrent && panels.popouts.currentName === "appmenu" ? Tokens.rounding.extraLarge : 0
         }
 
         PanelBg {
