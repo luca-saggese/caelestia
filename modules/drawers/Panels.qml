@@ -167,7 +167,7 @@ Item {
         id: popoutsWrapper
 
         screen: root.screen
-        alongInset: root.bar.vertical ? root.bar.insetTop : root.bar.insetLeft
+        alongInset: root.bar.vertical && root.popoutsWrapper.content.currentName !== "appmenu" ? root.bar.insetTop : root.bar.insetLeft
         barPosition: root.bar.position
     }
 

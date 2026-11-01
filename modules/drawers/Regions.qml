@@ -11,12 +11,24 @@ Region {
     required property Bar.BarWrapper bar
     required property Panels panels
     required property var win
+    required property Item menuStrip
 
-    x: bar.clampedInsetLeft + win.dragMaskPadding
-    y: bar.clampedInsetTop + win.dragMaskPadding
-    width: win.width - bar.clampedInsetLeft - bar.clampedInsetRight - win.dragMaskPadding * 2
-    height: win.height - bar.clampedInsetTop - bar.clampedInsetBottom - win.dragMaskPadding * 2
-    intersection: Intersection.Xor
+    x: 0
+    y: 0
+    width: win.width
+    height: win.height
+    intersection: Intersection.Combine
+
+    // Start with the full screen as the input surface, then remove its central
+    // area. This leaves the frame and bar interactive while clicks pass through
+    // to applications everywhere else.
+    Region {
+        x: root.bar.clampedInsetLeft + root.win.dragMaskPadding
+        y: root.bar.clampedInsetTop + root.win.dragMaskPadding
+        width: root.win.width - root.bar.clampedInsetLeft - root.bar.clampedInsetRight - root.win.dragMaskPadding * 2
+        height: root.win.height - root.bar.clampedInsetTop - root.bar.clampedInsetBottom - root.win.dragMaskPadding * 2
+        intersection: Intersection.Xor
+    }
 
     R {
         panel: root.panels.dashboard
@@ -75,6 +87,16 @@ Region {
         width: open ? p.targetW : (root.bar.vertical ? p.width * (1 - p.offsetScale) : p.width)
         height: open ? p.targetH : (root.bar.vertical ? p.height : p.height * (1 - p.offsetScale))
         intersection: Intersection.Subtract
+    }
+
+    // Re-add the app-menu hit target last: the notification and other panel
+    // exclusions above overlap the top frame where its buttons are drawn.
+    Region {
+        x: root.menuStrip.x
+        y: root.menuStrip.y
+        width: root.menuStrip.width
+        height: root.menuStrip.height
+        intersection: Intersection.Combine
     }
 
     component R: Region {

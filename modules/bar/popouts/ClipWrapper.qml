@@ -18,7 +18,7 @@ Item {
     readonly property bool onRight: barPosition === BarPosition.Right
     readonly property bool onTop: barPosition === BarPosition.Top
     readonly property bool onBottom: barPosition === BarPosition.Bottom
-    readonly property bool vertical: onLeft || onRight
+    readonly property bool vertical: (onLeft || onRight) && content.currentName !== "appmenu"
 
     readonly property alias content: content
     property real offsetScale: content.isDetached || content.hasCurrent || (onLeft && x > 0) || (onTop && y > 0) ? 0 : 1

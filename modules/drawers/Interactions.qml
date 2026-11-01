@@ -101,15 +101,23 @@ CustomMouseArea {
         let r = bar.insetLeft + w.targetX + w.targetW + m;
         let t = bar.insetTop + w.targetY - m;
         let b = bar.insetTop + w.targetY + w.targetH + m;
-        if (bar.onLeft)
+        const verticalPopout = panels.popoutsWrapper.vertical;
+        if (verticalPopout && bar.onLeft)
             l = 0;
-        else if (bar.onRight)
+        else if (verticalPopout && bar.onRight)
             r = width;
-        else if (bar.onTop)
+        else if (!verticalPopout && bar.onTop)
             t = 0;
-        else
+        else if (!verticalPopout && bar.onBottom)
             b = height;
         return x >= l && x <= r && y >= t && y <= b;
+    }
+
+    // Item.contains() expects a point in that item's local coordinates, while
+    // the interaction handlers below receive points relative to this window.
+    function overAppMenu(x: real, y: real): bool {
+        const point = root.mapToItem(appMenuBar, x, y);
+        return appMenuBar.contains(point);
     }
 
     // The empty stretch of the bar between its two ends: panels on the bar's own edge can still be reached from it
@@ -205,6 +213,13 @@ CustomMouseArea {
     onPressed: event => dragStart = Qt.point(event.x, event.y)
 
     onContainsMouseChanged: {
+        if (!containsMouse && popouts.currentName === "appmenu") {
+            const staysInAppMenu = overAppMenu(mouseX, mouseY) || inPopout(mouseX, mouseY);
+            // A child MouseArea can take pointer ownership from this full-screen
+            // handler while the pointer is still inside the menu or its popout.
+            if (staysInAppMenu)
+                return;
+        }
         if (!containsMouse) {
             root.armedAction = HotCornerAction.None;
             hotCornerTimer.stop();
@@ -405,6 +420,13 @@ CustomMouseArea {
             const triggerPoint = trigger ? root.mapToItem(trigger, x, y) : Qt.point(-1, -1);
             if ((!trigger || !trigger.contains(triggerPoint)) && !inPopout(x, y))
                 popouts.hasCurrent = false;
+        } else if (popouts.currentName === "appmenu" && inPopout(x, y)) {
+            // Keep the application menu open while moving from its title to the
+            // shared popout surface. Generic bar hit-testing does not know the
+            // app-menu strip and would otherwise close this popout immediately.
+        } else if (overAppMenu(x, y)) {
+            // App-menu entries sit in the frame beside the regular Bar/HBar
+            // items, so let their own MouseAreas and popout state handle them.
         } else if (bar.isOver(x, y, width, height)) {
             bar.checkPopout(bar.vertical ? y : x);
         } else if ((!popouts.currentName.startsWith("traymenu") || ((popouts.current as StackView)?.depth ?? 0) <= 1) && !inPopout(x, y)) {

@@ -12,12 +12,20 @@ Singleton {
     readonly property string path: `${Paths.config}/window-decor.json`
     property bool loaded: false
     property bool enabled: false
+    property bool appMenuEnabled: false
     property list<string> managedFloating: []
 
     function setEnabled(value: bool): void {
         if (!root.loaded)
             return;
         root.enabled = value;
+        root.write();
+    }
+
+    function setAppMenuEnabled(value: bool): void {
+        if (!root.loaded)
+            return;
+        root.appMenuEnabled = value;
         root.write();
     }
 
@@ -37,6 +45,7 @@ Singleton {
         if (root.loaded)
             storage.setText(JSON.stringify({
                 enabled: root.enabled,
+                appMenuEnabled: root.appMenuEnabled,
                 managedFloating: root.managedFloating
             }, null, 4) + "\n");
     }
@@ -52,6 +61,7 @@ Singleton {
             try {
                 const data = JSON.parse(text());
                 root.enabled = data.enabled ?? false;
+                root.appMenuEnabled = data.appMenuEnabled ?? false;
                 root.managedFloating = data.managedFloating ?? [];
             } catch (e) {
                 console.warn("Window decoration settings are invalid; using defaults", e);

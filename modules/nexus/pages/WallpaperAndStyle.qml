@@ -137,11 +137,20 @@ PageBase {
 
         ToggleRow {
             first: true
-            last: true
             text: Tr.tr("Floating windows with title bar")
             subtext: Tr.tr("Use native Hyprland floating windows and a Caelestia-coloured title bar")
             checked: WindowDecorSettings.enabled
             onToggled: WindowDecorSettings.setEnabled(checked)
+        }
+
+        ToggleRow {
+            Layout.topMargin: Tokens.spacing.extraSmall / 2 - parent.spacing
+
+            last: true
+            text: Tr.tr("App menu in top bar")
+            subtext: Tr.tr("Show AT-SPI app menus in the top-left border; restart open Qt apps after enabling")
+            checked: WindowDecorSettings.appMenuEnabled
+            onToggled: WindowDecorSettings.setAppMenuEnabled(checked)
         }
     }
 }

@@ -12,6 +12,7 @@ import qs.components
 import qs.components.containers
 import qs.services
 import qs.modules.bar
+import qs.modules.bar.components
 
 StyledWindow {
     id: root
@@ -198,6 +199,7 @@ StyledWindow {
         bar: bar
         panels: panels
         win: root
+        menuStrip: appMenuBar
     }
 
     HyprlandFocusGrab {
@@ -290,6 +292,20 @@ StyledWindow {
             implicitHeight: root.middleProg <= 0.01 ? 0 : bar.vertical ? root.height - bar.middleEnd + radius : bar.thickness + radius
         }
 
+        // Extend the same frame surface behind the application-menu strip.
+        // The top edge is flush with the screen border, so this reads as part
+        // of the frame instead of a detached pill or floating toolbar.
+        BlobRect {
+            group: blobGroup
+            x: bar.insetLeft
+            y: 0
+            implicitWidth: appMenuBar.visible ? appMenuBar.x + appMenuBar.width + Tokens.padding.medium - x : 0
+            implicitHeight: appMenuBar.visible ? appMenuBar.y + appMenuBar.height : 0
+            radius: Tokens.rounding.extraLarge
+            topLeftRadius: 0
+            topRightRadius: 0
+        }
+
         PanelBg {
             id: dashBg
 
@@ -374,7 +390,8 @@ StyledWindow {
             // Extra width to prevent vertical movement deformation partially detaching panel from bar
             property real extraWidth: panels.popouts.isDetached ? 0 : 0.2
             // The extra size is tucked under the bar, so it grows towards the bar's side
-            readonly property real extraOffset: (bar.onRight || bar.onBottom) && !panels.popouts.isDetached ? 0 : (bar.vertical ? panels.popouts.width : panels.popouts.height) * extraWidth
+            readonly property bool popoutVertical: panels.popoutsWrapper.vertical
+            readonly property real extraOffset: (bar.onRight || bar.onBottom) && !panels.popouts.isDetached ? 0 : (popoutVertical ? panels.popouts.width : panels.popouts.height) * extraWidth
 
             // A closed popout tucks itself under the bar band; with the bar's middle cut away nothing covers that
             // spot any more, so the box is given no size at all while the popout is closed (the blob renderer skips
@@ -383,10 +400,10 @@ StyledWindow {
 
             panel: panels.popoutsWrapper
             deformAmount: panels.popouts.isDetached ? 0.05 : panels.popouts.hasCurrent ? 0.15 : 0.1
-            x: bar.vertical ? panels.popoutsWrapper.x + panels.popouts.x + bar.insetLeft - extraOffset : panels.popoutsWrapper.x + bar.insetLeft
-            y: bar.vertical ? panels.popoutsWrapper.y + bar.insetTop : panels.popoutsWrapper.y + panels.popouts.y + bar.insetTop - extraOffset
-            implicitWidth: !open ? 0 : bar.vertical ? panels.popouts.width * (1 + extraWidth) : panels.popoutsWrapper.width
-            implicitHeight: !open ? 0 : bar.vertical ? panels.popoutsWrapper.height : panels.popouts.height * (1 + extraWidth)
+            x: popoutVertical ? panels.popoutsWrapper.x + panels.popouts.x + bar.insetLeft - extraOffset : panels.popoutsWrapper.x + bar.insetLeft
+            y: popoutVertical ? panels.popoutsWrapper.y + bar.insetTop : panels.popoutsWrapper.y + panels.popouts.y + bar.insetTop - extraOffset
+            implicitWidth: !open ? 0 : popoutVertical ? panels.popouts.width * (1 + extraWidth) : panels.popoutsWrapper.width
+            implicitHeight: !open ? 0 : popoutVertical ? panels.popoutsWrapper.height : panels.popouts.height * (1 + extraWidth)
 
             Behavior on extraWidth {
                 Anim {}
@@ -474,6 +491,16 @@ StyledWindow {
             joinedRight: root.joinedRight
             joinedTop: root.joinedTop
             joinedBottom: root.joinedBottom
+        }
+
+        // Keep app menu input in the same Interactions/bar subtree as workspace controls.
+        AppMenuBar {
+            id: appMenuBar
+            popouts: panels.popouts
+            bar: bar
+            x: bar.insetLeft + Tokens.padding.small
+            y: bar.onTop ? (bar.thickness - height) / 2 : bar.borderInsetTop + Tokens.padding.extraSmall
+            z: 20
         }
     }
 

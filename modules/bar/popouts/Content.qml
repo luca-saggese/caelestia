@@ -44,6 +44,11 @@ Item {
         }
 
         Popout {
+            name: "appmenu"
+            sourceComponent: ApplicationMenu {}
+        }
+
+        Popout {
             id: networkPopout
 
             name: "network"

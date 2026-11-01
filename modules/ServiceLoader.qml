@@ -17,6 +17,7 @@ Scope {
         UpdateChecker;
         SpecialWorkspaceGuard;
         WindowDecoration;
+        AppMenu;
         ResourceHistory;
         Weather.reload();
 
