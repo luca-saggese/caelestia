@@ -28,7 +28,7 @@ Item {
         id: layout
 
         anchors.centerIn: parent
-        anchors.horizontalCenterOffset: CUtils.clamp(Tokens.padding.large - Config.border.thickness, 0, Tokens.padding.large) / 2
+        anchors.horizontalCenterOffset: CUtils.clamp(Tokens.padding.large - (Config.border.thickness / 2), 0, Tokens.padding.large) / 2
         spacing: Tokens.spacing.medium
 
         // Speaker volume

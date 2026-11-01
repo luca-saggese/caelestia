@@ -100,9 +100,9 @@ Item {
         return bars;
     }
 
-    implicitWidth: layout.implicitWidth + (compact ? Tokens.padding.medium : Tokens.padding.large) * 2
+    implicitWidth: layout.implicitWidth + (compact ? Tokens.padding.medium : Tokens.padding.large)
 
-    implicitHeight: layout.implicitHeight + (compact ? Tokens.padding.small : Tokens.padding.medium) * 2
+    implicitHeight: layout.implicitHeight + (compact ? Tokens.padding.small : Tokens.padding.medium)
 
     RowLayout {
         id: layout

@@ -15,28 +15,28 @@ Scope {
     // The bar's zone replaces the plain border zone on whichever edge it is attached to
     ExclusionZone {
         anchors.left: true
-        exclusiveZone: root.bar.onLeft ? root.bar.exclusiveZone : contentItem.Config.border.thickness
+        exclusiveZone: root.bar.onLeft ? root.bar.exclusiveZone : (contentItem.Config.border.thickness / 2)
     }
 
     ExclusionZone {
         anchors.top: true
-        exclusiveZone: root.bar.onTop ? root.bar.exclusiveZone : contentItem.Config.border.thickness
+        exclusiveZone: root.bar.onTop ? root.bar.exclusiveZone : (contentItem.Config.border.thickness / 2)
     }
 
     ExclusionZone {
         anchors.right: true
-        exclusiveZone: root.bar.onRight ? root.bar.exclusiveZone : contentItem.Config.border.thickness
+        exclusiveZone: root.bar.onRight ? root.bar.exclusiveZone : (contentItem.Config.border.thickness / 2)
     }
 
     ExclusionZone {
         anchors.bottom: true
-        exclusiveZone: root.bar.onBottom ? root.bar.exclusiveZone : contentItem.Config.border.thickness
+        exclusiveZone: root.bar.onBottom ? root.bar.exclusiveZone : (contentItem.Config.border.thickness / 2)
     }
 
     component ExclusionZone: StyledWindow {
         screen: root.screen
         name: "border-exclusion"
-        exclusiveZone: contentItem.Config.border.thickness
+        exclusiveZone: (contentItem.Config.border.thickness / 2)
         mask: Region {}
         implicitWidth: 1
         implicitHeight: 1

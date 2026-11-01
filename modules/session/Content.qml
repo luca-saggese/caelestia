@@ -84,7 +84,7 @@ Column {
     }
 
     padding: Tokens.padding.large
-    rightPadding: CUtils.clamp(padding - Config.border.thickness, 0, padding)
+    rightPadding: CUtils.clamp(padding - (Config.border.thickness / 2), 0, padding)
     spacing: Tokens.spacing.large
 
     Connections {

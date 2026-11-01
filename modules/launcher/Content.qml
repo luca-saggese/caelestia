@@ -21,7 +21,7 @@ Item {
     readonly property int padding: Tokens.padding.large
     readonly property int rounding: Tokens.rounding.extraLarge
     // Gap between the search bar and the screen edge it sits next to
-    readonly property real edgeMargin: CUtils.clamp(padding - Config.border.thickness, 0, padding)
+    readonly property real edgeMargin: CUtils.clamp(padding - (Config.border.thickness / 2), 0, padding)
 
     implicitWidth: listWrapper.width + padding * 2
     implicitHeight: search.height + listWrapper.height + padding + edgeMargin

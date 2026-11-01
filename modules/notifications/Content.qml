@@ -25,7 +25,7 @@ Item {
     property bool atLeft
     property bool atBottom
     readonly property int padding: Tokens.padding.large
-    readonly property int clampedPadding: CUtils.clamp(padding - Config.border.thickness, 0, padding)
+    readonly property int clampedPadding: CUtils.clamp(padding - (Config.border.thickness / 2), 0, padding)
 
     anchors.top: parent.top
     anchors.bottom: parent.bottom
@@ -54,12 +54,12 @@ Item {
         }
 
         if (screenState.utilities && utilitiesSame && !atBottom) {
-            const h = ((QsWindow.window as QsWindow)?.screen.height ?? 0) - (utilitiesPanel as Utilities.Wrapper).nonAnimHeight - Config.border.thickness * 2 - padding * 2 - Tokens.spacing.extraLarge;
+            const h = ((QsWindow.window as QsWindow)?.screen.height ?? 0) - (utilitiesPanel as Utilities.Wrapper).nonAnimHeight - (Config.border.thickness / 2) * 2 - padding * 2 - Tokens.spacing.extraLarge;
             if (height > h)
                 height = h;
         }
 
-        return Math.min(((QsWindow.window as QsWindow)?.screen?.height ?? 0) + padding - clampedPadding * 2 - Config.border.thickness, height + padding + clampedPadding);
+        return Math.min(((QsWindow.window as QsWindow)?.screen?.height ?? 0) + padding - clampedPadding * 2 - (Config.border.thickness / 2), height + padding + clampedPadding);
     }
 
     ClippingWrapperRectangle {

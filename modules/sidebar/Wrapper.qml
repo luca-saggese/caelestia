@@ -46,7 +46,7 @@ Item {
         anchors.bottom: parent.bottom
         anchors.left: parent.left
         anchors.leftMargin: Tokens.padding.large
-        anchors.margins: CUtils.clamp(anchors.leftMargin - Config.border.thickness, 0, anchors.leftMargin)
+        anchors.margins: CUtils.clamp(anchors.leftMargin - (Config.border.thickness / 2), 0, anchors.leftMargin)
         anchors.bottomMargin: 0
 
         active: root.shouldBeActive || root.visible

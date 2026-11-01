@@ -32,11 +32,11 @@ Item {
     readonly property bool disabled: Strings.testRegexList(Config.bar.excludedScreens, screen.name)
 
     // How far the bar reaches in from its screen edge; animates between the border thickness and the full bar
-    property real thickness: fullscreen ? 0 : Config.border.thickness
+    property real thickness: fullscreen ? 0 : (Config.border.thickness / 2)
     readonly property real clampedThickness: Math.max(Config.border.minThickness, thickness)
-    readonly property int padding: Math.max(Tokens.padding.small, Config.border.thickness)
+    readonly property int padding: Math.max(Tokens.padding.small, (Config.border.thickness / 2))
     readonly property int contentThickness: Tokens.sizes.bar.innerWidth + padding * 2
-    readonly property int exclusiveZone: !disabled && (Config.bar.persistent || screenState.bar) ? contentThickness : Config.border.thickness
+    readonly property int exclusiveZone: !disabled && (Config.bar.persistent || screenState.bar) ? contentThickness : (Config.border.thickness / 2)
     readonly property bool shouldBeVisible: !fullscreen && !disabled && (Config.bar.persistent || screenState.bar || isHovered)
     property bool isHovered
 
@@ -123,7 +123,7 @@ Item {
         id: strip
 
         clip: true
-        visible: root.thickness > Config.border.thickness
+        visible: root.thickness > (Config.border.thickness / 2)
 
         x: root.onRight ? root.width - root.thickness : 0
         y: root.onBottom ? root.height - root.thickness : 0

@@ -48,10 +48,10 @@ Variants {
 
             // Space the bar takes on each edge (border thickness on edges without the bar)
             readonly property var barRef: ShellState.componentsFor(win.screen)?.bar
-            readonly property real barLeft: (barRef?.onLeft ? barRef.contentThickness : Config.border.thickness)
-            readonly property real barRight: (barRef?.onRight ? barRef.contentThickness : Config.border.thickness)
-            readonly property real barTop: (barRef?.onTop ? barRef.contentThickness : Config.border.thickness)
-            readonly property real barBottom: (barRef?.onBottom ? barRef.contentThickness : Config.border.thickness)
+            readonly property real barLeft: (barRef?.onLeft ? barRef.contentThickness : (Config.border.thickness / 2))
+            readonly property real barRight: (barRef?.onRight ? barRef.contentThickness : (Config.border.thickness / 2))
+            readonly property real barTop: (barRef?.onTop ? barRef.contentThickness : (Config.border.thickness / 2))
+            readonly property real barBottom: (barRef?.onBottom ? barRef.contentThickness : (Config.border.thickness / 2))
 
             // Whether tiled (non-floating) windows are covering this monitor's desktop; floating ones leave it visible
             readonly property var monitor: Hypr.monitorFor(win.screen)
