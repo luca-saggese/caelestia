@@ -5,6 +5,7 @@ import Quickshell
 
 Singleton {
     required property list<QtObject> list
+    readonly property list<QtObject> validList: list.filter(item => item !== null && item !== undefined)
     property string key: "name"
     property bool useFuzzy: false
     property var extraOpts: ({})
@@ -13,10 +14,10 @@ Singleton {
     property list<string> keys: [key]
     property list<real> weights: [1]
 
-    readonly property var fzf: useFuzzy ? [] : new Fzf.Finder(list, Object.assign({
+    readonly property var fzf: useFuzzy ? [] : new Fzf.Finder(validList, Object.assign({
         selector
     }, extraOpts))
-    readonly property list<var> fuzzyPrepped: useFuzzy ? list.map(e => {
+    readonly property list<var> fuzzyPrepped: useFuzzy ? validList.map(e => {
         const obj = {
             _item: e
         };
@@ -31,13 +32,13 @@ Singleton {
 
     function selector(item: var): string {
         // Only for fzf
-        return item[key];
+        return item === null || item === undefined ? "" : String(item[key] ?? "");
     }
 
     function query(search: string): var {
         search = transformSearch(search.trim().replace(/\s+/g, " "));
         if (!search)
-            return [...list];
+            return [...validList];
 
         if (useFuzzy)
             return Fuzzy.go(search, fuzzyPrepped, Object.assign({
