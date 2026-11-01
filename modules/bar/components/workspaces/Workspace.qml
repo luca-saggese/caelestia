@@ -251,7 +251,7 @@ Item {
                     }
 
                     function focusWindow(): void {
-                        const address = String(modelData.address || "");
+                        const address = String(modelData.address || "").replace(/^0x/, "");
                         if (!address)
                             return;
 
@@ -261,9 +261,10 @@ Item {
                                 ?? Hypr.workspaces.values.find(w => w.id > 0 && w.monitor === Hypr.focusedMonitor?.name)
                                 ?? Hypr.workspaces.values.find(w => w.id > 0);
                             const target = workspace?.id ?? 1;
+                            const window = `address:0x${address}`;
                             Hypr.dispatch(Hypr.usingLua
-                                ? `hl.dsp.window.move({workspace=${target},follow=true,window="address:${address}"})`
-                                : `movetoworkspace ${target},address:${address}`);
+                                ? `hl.dsp.window.move({workspace=${target},follow=true,window="${window}"})`
+                                : `movetoworkspace ${target},${window}`);
                             Qt.callLater(() => Hypr.focusWindow(address));
                         } else {
                             Hypr.focusWindow(address);
@@ -271,21 +272,29 @@ Item {
                     }
 
                     function minimizeWindow(): void {
-                        const address = String(modelData.address || "");
+                        const address = String(modelData.address || "").replace(/^0x/, "");
                         if (!address)
                             return;
+                        const target = `address:0x${address.replace(/^0x/, "")}`;
                         Hypr.dispatch(Hypr.usingLua
-                            ? `hl.dsp.window.move({workspace="special:minimized",follow=false,window="address:${address}"})`
-                            : `movetoworkspacesilent special:minimized,address:${address}`);
+                            ? `hl.dsp.window.move({workspace="special:minimized",follow=false,window="${target}"})`
+                            : `movetoworkspacesilent special:minimized,${target}`);
                     }
 
                     function closeWindow(): void {
-                        const address = String(modelData.address || "");
+                        const address = String(modelData.address || "").replace(/^0x/, "");
                         if (!address)
                             return;
+                        const target = `address:0x${address.replace(/^0x/, "")}`;
                         Hypr.dispatch(Hypr.usingLua
-                            ? `hl.dsp.window.close({window="address:${address}"})`
-                            : `closewindow address:${address}`);
+                            ? `hl.dsp.window.close({window="${target}"})`
+                            : `closewindow ${target}`);
+                    }
+
+                    function hideWindowPreview(): void {
+                        const popouts = ShellState.componentsFor(root.screen)?.panels?.popouts;
+                        if (popouts?.currentName === "windowpreview")
+                            popouts.hasCurrent = false;
                     }
 
                     function showWindowPreview(): void {
@@ -312,18 +321,21 @@ Item {
 
                         onEntered: windowButton.showWindowPreview()
                         onClicked: event => {
-                            if (event.button === Qt.RightButton)
+                            if (event.button === Qt.RightButton) {
+                                windowButton.hideWindowPreview();
                                 contextMenu.expanded = true;
-                            else
+                            } else {
                                 windowButton.focusWindow();
+                            }
                         }
 
                         Menu {
                             id: contextMenu
 
                             attachTo: windowButton
-                            attachSideX: Menu.Right
-                            thisSideX: Menu.Right
+                            compact: true
+                            attachSideX: ShellState.componentsFor(root.screen)?.bar?.onRight ? Menu.Left : Menu.Right
+                            thisSideX: ShellState.componentsFor(root.screen)?.bar?.onRight ? Menu.Right : Menu.Left
                             attachSideY: Menu.Bottom
                             thisSideY: Menu.Top
                             items: [minimizeItem, closeItem]
