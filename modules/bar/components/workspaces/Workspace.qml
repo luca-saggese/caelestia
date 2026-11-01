@@ -4,10 +4,14 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Hyprland
+import Quickshell.Wayland
 import M3Shapes
 import Caelestia.Components
 import Caelestia.Config
+import Caelestia.I18n
 import qs.components
+import qs.components.controls
+import qs.components.effects
 import qs.services
 import qs.utils
 
@@ -221,17 +225,24 @@ Item {
                 }
 
                 delegate: MaterialIcon {
-                    id: win
+                    id: windowButton
 
                     required property var modelData
                     required property int index // Needed, LazyListView will fail to set it if it doesn't exist
 
+                    property bool previewOpen: false
+                    property bool previewHovered: false
+
                     grade: 0
                     horizontalAlignment: Text.AlignHCenter
                     text: Icons.getAppCategoryIcon(modelData.lastIpcObject.class, "terminal")
-                    color: root.onOtherMonitor ? root.offMonitorColour : Colours.palette.m3onSurfaceVariant
+                    color: iconMouse.containsMouse ? Colours.palette.m3primary : root.onOtherMonitor ? root.offMonitorColour : Colours.palette.m3onSurfaceVariant
 
                     opacity: LazyListView.adding || LazyListView.removing ? 0 : 1
+
+                    Behavior on color {
+                        CAnim {}
+                    }
 
                     Behavior on opacity {
                         Anim {
@@ -241,6 +252,200 @@ Item {
 
                     Behavior on y {
                         Anim {}
+                    }
+
+                    function focusWindow(): void {
+                        const address = String(modelData.address || "");
+                        if (!address)
+                            return;
+
+                        if (String(modelData.lastIpcObject.workspace?.name || "") === "special:minimized") {
+                            const activeWorkspaceId = Number(Hypr.focusedMonitor?.lastIpcObject.activeWorkspace?.id ?? 0);
+                            const workspace = Hypr.workspaces.values.find(w => w.id === activeWorkspaceId && w.id > 0)
+                                ?? Hypr.workspaces.values.find(w => w.id > 0 && w.monitor === Hypr.focusedMonitor?.name)
+                                ?? Hypr.workspaces.values.find(w => w.id > 0);
+                            const target = workspace?.id ?? 1;
+                            Hypr.dispatch(Hypr.usingLua
+                                ? `hl.dsp.window.move({workspace=${target},follow=true,window="address:${address}"})`
+                                : `movetoworkspace ${target},address:${address}`);
+                            Qt.callLater(() => Hypr.focusWindow(address));
+                        } else {
+                            Hypr.focusWindow(address);
+                        }
+                    }
+
+                    function minimizeWindow(): void {
+                        const address = String(modelData.address || "");
+                        if (!address)
+                            return;
+                        Hypr.dispatch(Hypr.usingLua
+                            ? `hl.dsp.window.move({workspace="special:minimized",follow=false,window="address:${address}"})`
+                            : `movetoworkspacesilent special:minimized,address:${address}`);
+                    }
+
+                    function closeWindow(): void {
+                        const address = String(modelData.address || "");
+                        if (!address)
+                            return;
+                        Hypr.dispatch(Hypr.usingLua
+                            ? `hl.dsp.window.close({window="address:${address}"})`
+                            : `closewindow address:${address}`);
+                    }
+
+                    MouseArea {
+                        id: iconMouse
+                        anchors.fill: parent
+                        acceptedButtons: Qt.LeftButton | Qt.RightButton
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+
+                        onEntered: {
+                            hidePreviewTimer.stop();
+                            windowButton.previewOpen = true;
+                        }
+                        onExited: hidePreviewTimer.restart()
+                        onClicked: event => {
+                            if (event.button === Qt.RightButton)
+                                contextMenu.expanded = true;
+                            else
+                                windowButton.focusWindow();
+                        }
+
+                        Menu {
+                            id: contextMenu
+
+                            attachTo: windowButton
+                            attachSideX: Menu.Right
+                            thisSideX: Menu.Right
+                            attachSideY: Menu.Bottom
+                            thisSideY: Menu.Top
+                            items: [minimizeItem, closeItem]
+
+                            MenuItem {
+                                id: minimizeItem
+                                text: Tr.tr("Minimize")
+                                icon: "minimize"
+                                onClicked: windowButton.minimizeWindow()
+                            }
+
+                            MenuItem {
+                                id: closeItem
+                                text: Tr.tr("Close")
+                                icon: "close"
+                                onClicked: windowButton.closeWindow()
+                            }
+                        }
+                    }
+
+                    Timer {
+                        id: hidePreviewTimer
+                        interval: 180
+                        onTriggered: {
+                            if (!iconMouse.containsMouse && !windowButton.previewHovered)
+                                windowButton.previewOpen = false;
+                        }
+                    }
+
+                    PopupWindow {
+                        id: preview
+
+                        anchor.item: windowButton
+                        anchor.edges: Edges.Right
+                        anchor.gravity: Edges.Right
+                        anchor.adjustment: PopupAdjustment.Slide
+                        implicitWidth: 270
+                        implicitHeight: 190
+                        visible: windowButton.previewOpen
+                        color: "transparent"
+
+                        StyledRect {
+                            anchors.fill: parent
+                            anchors.margins: Tokens.padding.extraSmall
+                            radius: Tokens.rounding.large
+                            color: Colours.palette.m3surfaceContainer
+                            clip: true
+                            opacity: preview.visible ? 1 : 0
+                            scale: preview.visible ? 1 : 0.96
+
+                            Behavior on opacity {
+                                Anim {
+                                    type: Anim.DefaultEffects
+                                }
+                            }
+
+                            Behavior on scale {
+                                Anim {}
+                            }
+
+                            Elevation {
+                                anchors.fill: parent
+                                radius: Tokens.rounding.large
+                                level: 3
+                            }
+
+                            ColumnLayout {
+                                anchors.fill: parent
+                                anchors.margins: Tokens.padding.small
+                                spacing: Tokens.spacing.extraSmall
+
+                                RowLayout {
+                                    Layout.fillWidth: true
+                                    spacing: Tokens.spacing.small
+
+                                    MaterialIcon {
+                                        text: windowButton.text
+                                        color: Colours.palette.m3primary
+                                    }
+
+                                    StyledText {
+                                        Layout.fillWidth: true
+                                        text: windowButton.modelData.title || windowButton.modelData.lastIpcObject.class || Tr.tr("Window")
+                                        color: Colours.palette.m3onSurface
+                                        elide: Text.ElideRight
+                                    }
+                                }
+
+                                ClipRect {
+                                    Layout.fillWidth: true
+                                    Layout.fillHeight: true
+                                    color: Colours.palette.m3surfaceContainerHighest
+                                    radius: Tokens.rounding.medium
+
+                                    ScreencopyView {
+                                        id: screencopy
+                                        anchors.fill: parent
+                                        anchors.margins: Tokens.padding.extraSmall
+                                        captureSource: preview.visible ? windowButton.modelData.wayland : null
+                                        live: preview.visible
+                                        constraintSize: Qt.size(250, 145)
+                                    }
+
+                                    Loader {
+                                        anchors.centerIn: parent
+                                        active: !screencopy.hasContent
+
+                                        sourceComponent: StyledText {
+                                            text: Tr.tr("Preview unavailable")
+                                            color: Colours.palette.m3onSurfaceVariant
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            acceptedButtons: Qt.NoButton
+                            onEntered: {
+                                windowButton.previewHovered = true;
+                                hidePreviewTimer.stop();
+                            }
+                            onExited: {
+                                windowButton.previewHovered = false;
+                                hidePreviewTimer.restart();
+                            }
+                        }
                     }
                 }
             }

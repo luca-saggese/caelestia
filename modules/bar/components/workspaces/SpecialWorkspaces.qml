@@ -202,6 +202,8 @@ Item {
         property bool dragging
 
         anchors.fill: parent
+        z: -1
+        acceptedButtons: Qt.LeftButton
 
         onPressed: event => {
             startY = event.y;
