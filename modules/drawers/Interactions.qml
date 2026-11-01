@@ -397,8 +397,15 @@ CustomMouseArea {
             utilitiesShortcutActive = false;
         }
 
-        // Show popouts on hover
-        if (bar.isOver(x, y, width, height)) {
+        // Workspace previews are opened by their own window-icon MouseArea. Keep that native popout
+        // alive while crossing from the icon to its panel; the bar's generic hit-test only knows its
+        // top-level entries and can otherwise clear a nested workspace preview immediately.
+        if (popouts.currentName === "windowpreview") {
+            const trigger = popouts.windowPreviewTrigger;
+            const triggerPoint = trigger ? root.mapToItem(trigger, x, y) : Qt.point(-1, -1);
+            if ((!trigger || !trigger.contains(triggerPoint)) && !inPopout(x, y))
+                popouts.hasCurrent = false;
+        } else if (bar.isOver(x, y, width, height)) {
             bar.checkPopout(bar.vertical ? y : x);
         } else if ((!popouts.currentName.startsWith("traymenu") || ((popouts.current as StackView)?.depth ?? 0) <= 1) && !inPopout(x, y)) {
             popouts.hasCurrent = false;

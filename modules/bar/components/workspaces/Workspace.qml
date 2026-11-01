@@ -297,6 +297,7 @@ Item {
 
                         const center = mapToItem(bar, width / 2, height / 2);
                         popouts.windowPreviewClient = modelData;
+                        popouts.windowPreviewTrigger = windowButton;
                         popouts.currentName = "windowpreview";
                         popouts.currentCenter = bar.vertical ? center.y : center.x;
                         popouts.hasCurrent = true;
