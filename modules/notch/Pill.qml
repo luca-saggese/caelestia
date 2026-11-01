@@ -100,7 +100,7 @@ Item {
         return bars;
     }
 
-    implicitWidth: layout.implicitWidth + (compact ? Tokens.padding.medium : Tokens.padding.large)
+    implicitWidth: layout.implicitWidth + (compact ? Tokens.padding.medium : Tokens.padding.large) * 2
 
     implicitHeight: layout.implicitHeight + (compact ? Tokens.padding.small : Tokens.padding.medium)
 
@@ -133,14 +133,14 @@ Item {
                     StyledText {
                         text: `${Time.hourStr}:${Time.minuteStr}`
                         color: Colours.palette.m3primary
-                        font: root.compact ? Tokens.font.label.builders.large.weight(Font.DemiBold).build() : Tokens.font.title.builders.small.weight(Font.DemiBold).build()
+                        font: root.compact ? Tokens.font.label.builders.large.size(Tokens.font.label.large.pointSize * 0.7).weight(Font.DemiBold).build() : Tokens.font.title.builders.small.size(Tokens.font.title.small.pointSize * 0.7).weight(Font.DemiBold).build()
                     }
 
                     StyledText {
                         visible: Units.twelveHourClock
                         text: Time.amPmStr.toLowerCase()
                         color: Colours.palette.m3primary
-                        font: Tokens.font.label.small
+                        font: Tokens.font.label.builders.small.size(Tokens.font.label.small.pointSize * 0.7).build()
                     }
                 }
 
@@ -149,7 +149,7 @@ Item {
                     Layout.alignment: Qt.AlignHCenter
                     text: Time.format("ddd d MMM")
                     color: Colours.palette.m3onSurfaceVariant
-                    font: Tokens.font.label.small
+                    font: Tokens.font.label.builders.small.size(Tokens.font.label.small.pointSize * 0.7).build()
                 }
             }
         }
