@@ -504,6 +504,7 @@ StyledWindow {
             id: appMenuBar
             popouts: panels.popouts
             bar: bar
+            dashboardOpen: root.screenState.dashboard
             x: bar.insetLeft + Tokens.padding.small
             y: bar.onTop ? (bar.thickness - height) / 2 : bar.borderInsetTop + Tokens.padding.extraSmall
             z: 20

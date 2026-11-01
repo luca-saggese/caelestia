@@ -264,6 +264,14 @@ Item {
             showMedia: root.hasRecent && (root.trackActive || (root.persistent && Config.notch.showMusic))
             showClock: root.persistent && Config.notch.showClock
             compact: root.inBarProg > 0.5
+
+            onClicked: {
+                if (!Config.dashboard.enabled || !Config.dashboard.showMedia)
+                    return;
+
+                root.screenState.dashboardTab = Config.dashboard.showDashboard ? 1 : 0;
+                root.screenState.dashboard = true;
+            }
         }
     }
 }

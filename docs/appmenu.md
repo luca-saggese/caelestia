@@ -6,6 +6,8 @@ When an application exposes a checkable **Menubar** visibility action, Caelestia
 
 The implementation follows the data flow used by [noctalia-appmenu](https://github.com/yolo-labz/noctalia-appmenu), but uses Hyprland's active-window state and keeps the menu in Caelestia's existing bar/panel surface. The upstream bridge is Niri-specific, so its focus daemon and Niri fallback actions are not used.
 
+The app-menu strip is hidden while the dashboard is open, since the dashboard contains the media player and occupies the same top-edge area. If an app-menu popout was open, opening the dashboard closes it; the strip becomes visible again when the dashboard closes.
+
 ## Reusing the border-integrated interaction pattern
 
 Use the existing bar/panel composition instead of creating a separate popup window. The app menu's top-level labels are `TextButton`s in `modules/bar/components/AppMenuBar.qml`; selecting one updates `AppMenu.openMenuIndex`, sets `popouts.currentName` and `popouts.hasCurrent`, and calculates `currentCenter` from the selected delegate. That center anchors the shared popout under the selected label.

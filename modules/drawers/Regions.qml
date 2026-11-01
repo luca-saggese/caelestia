@@ -94,8 +94,8 @@ Region {
     Region {
         x: root.menuStrip.x
         y: root.menuStrip.y
-        width: root.menuStrip.width
-        height: root.menuStrip.height
+        width: root.menuStrip.visible ? root.menuStrip.width : 0
+        height: root.menuStrip.visible ? root.menuStrip.height : 0
         intersection: Intersection.Combine
     }
 

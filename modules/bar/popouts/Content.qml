@@ -176,7 +176,10 @@ Item {
         id: popout
 
         required property string name
-        readonly property bool shouldBeActive: root.popouts.currentName === name
+        // currentName identifies the selected popout, but it stays unchanged
+        // when the app menu is dismissed. Unload that menu with its blob so an
+        // empty loader cannot preserve the dimensions of the previous submenu.
+        readonly property bool shouldBeActive: root.popouts.currentName === name && (name !== "appmenu" || root.popouts.hasCurrent)
         property bool ready: true
 
         anchors.centerIn: parent

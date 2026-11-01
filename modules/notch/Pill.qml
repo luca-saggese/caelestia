@@ -23,6 +23,8 @@ Item {
     property bool showMedia: true
     property bool showClock
 
+    signal clicked
+
     readonly property string trackTitle: root.local ? Music.title : Players.recentPlayer?.trackTitle ?? ""
     readonly property string trackArtist: root.local ? Music.artist : Players.recentPlayer?.trackArtist ?? ""
 
@@ -133,14 +135,14 @@ Item {
                     StyledText {
                         text: `${Time.hourStr}:${Time.minuteStr}`
                         color: Colours.palette.m3primary
-                        font: root.compact ? Tokens.font.label.builders.large.size(Tokens.font.label.large.pointSize * 0.7).weight(Font.DemiBold).build() : Tokens.font.title.builders.small.size(Tokens.font.title.small.pointSize * 0.7).weight(Font.DemiBold).build()
+                        font: root.compact ? Tokens.font.label.builders.large.size(Tokens.font.label.large.pointSize * 0.84).weight(Font.DemiBold).build() : Tokens.font.title.builders.small.size(Tokens.font.title.small.pointSize * 0.84).weight(Font.DemiBold).build()
                     }
 
                     StyledText {
                         visible: Units.twelveHourClock
                         text: Time.amPmStr.toLowerCase()
                         color: Colours.palette.m3primary
-                        font: Tokens.font.label.builders.small.size(Tokens.font.label.small.pointSize * 0.7).build()
+                        font: Tokens.font.label.builders.small.size(Tokens.font.label.small.pointSize * 0.84).build()
                     }
                 }
 
@@ -149,7 +151,7 @@ Item {
                     Layout.alignment: Qt.AlignHCenter
                     text: Time.format("ddd d MMM")
                     color: Colours.palette.m3onSurfaceVariant
-                    font: Tokens.font.label.builders.small.size(Tokens.font.label.small.pointSize * 0.7).build()
+                    font: Tokens.font.label.builders.small.size(Tokens.font.label.small.pointSize * 0.84).build()
                 }
             }
         }
@@ -290,5 +292,12 @@ Item {
                     rest();
             }
         }
+    }
+
+    MouseArea {
+        anchors.fill: parent
+        enabled: root.showMedia
+        cursorShape: Qt.PointingHandCursor
+        onClicked: root.clicked()
     }
 }

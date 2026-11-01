@@ -86,7 +86,10 @@ Singleton {
             ? `col={active_border="${primary}",inactive_border="${primary}"}`
             : 'col={active_border={colors={"rgba(33ccffee)","rgba(00ff99ee)"},angle=45},inactive_border="rgba(595959aa)"}';
 
-        root.dispatchLua(`hl.config({general={layout="dwindle",border_size=${borderSize},resize_on_border=${active},${borderColors}},plugin={hyprbars={enabled=${active},bar_height=28,bar_color="${root.hyprColor(Colours.palette.m3surfaceContainerHigh)}",col={text="${root.hyprColor(Colours.palette.m3onSurface)}"},bar_text_font="Noto Sans",bar_text_size=13,bar_text_weight=600,bar_text_align="center",bar_buttons_alignment="left",bar_padding=13,bar_button_padding=8,icon_on_hover=true,buttons_on_hover=false,bar_part_of_window=false}}})`);
+        // In floating mode, detach pointer focus and change keyboard focus on
+        // click so merely hovering another window cannot steal focus.
+        const followMouse = root.enabled ? 2 : 1;
+        root.dispatchLua(`hl.config({input={follow_mouse=${followMouse}},general={layout="dwindle",border_size=${borderSize},resize_on_border=${active},${borderColors}},plugin={hyprbars={enabled=${active},bar_height=28,bar_color="${root.hyprColor(Colours.palette.m3surfaceContainerHigh)}",col={text="${root.hyprColor(Colours.palette.m3onSurface)}"},bar_text_font="Noto Sans",bar_text_size=13,bar_text_weight=600,bar_text_align="center",bar_buttons_alignment="left",bar_padding=13,bar_button_padding=8,icon_on_hover=true,buttons_on_hover=false,bar_part_of_window=false}}})`);
     }
 
     function addButtonsOnce(): void {

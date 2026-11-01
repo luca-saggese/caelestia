@@ -21,7 +21,10 @@ Item {
     readonly property bool vertical: (onLeft || onRight) && content.currentName !== "appmenu"
 
     readonly property alias content: content
-    property real offsetScale: content.isDetached || content.hasCurrent || (onLeft && x > 0) || (onTop && y > 0) ? 0 : 1
+    // Side/top bars keep ordinary popouts pulled out while their anchor lies
+    // inside the screen. The app menu is an edge strip popout even on a side
+    // bar, so its anchor position must not keep a closed popout expanded.
+    property real offsetScale: content.isDetached || content.hasCurrent || (content.currentName !== "appmenu" && ((onLeft && x > 0) || (onTop && y > 0))) ? 0 : 1
 
     visible: width > 0 && height > 0
     clip: true

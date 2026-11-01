@@ -12,13 +12,19 @@ Item {
 
     required property var popouts
     required property Item bar
+    required property bool dashboardOpen
     readonly property var entries: AppMenu.entries
     implicitWidth: row.implicitWidth
     implicitHeight: Tokens.sizes.bar.innerWidth - Tokens.padding.small
     width: implicitWidth
     height: implicitHeight
-    visible: WindowDecorSettings.appMenuEnabled && entries.length > 0
+    visible: WindowDecorSettings.appMenuEnabled && entries.length > 0 && !dashboardOpen
     z: 1001
+
+    onDashboardOpenChanged: {
+        if (dashboardOpen && popouts.currentName === "appmenu")
+            popouts.hasCurrent = false;
+    }
 
     function selectMenu(index: int): void {
         console.info("appmenu-test select", index, entries.length, popouts.currentName, popouts.hasCurrent);
