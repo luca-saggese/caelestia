@@ -127,6 +127,7 @@ ClipRect {
                 activeWsId: root.activeWsId
                 ws: Config.bar.workspaces.showUnoccupied ? root.groupOffset + index + 1 : modelData
                 monitor: root.monitor
+                screen: root.screen
 
                 displayType: Config.bar.workspaces.displayType
                 showWindows: Config.bar.workspaces.showWindows
@@ -216,6 +217,7 @@ ClipRect {
                 anchors.fill: parent
                 anchors.margins: Tokens.padding.extraSmall
                 monitor: root.monitor
+                screen: root.screen
 
                 scale: 0.5
                 Component.onCompleted: scale = Qt.binding(() => root.onSpecial ? 1 : 0.5)

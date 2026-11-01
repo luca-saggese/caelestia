@@ -14,6 +14,7 @@ Item {
     id: root
 
     required property HyprlandMonitor monitor
+    required property ShellScreen screen
 
     readonly property int activeSpecialId: monitor?.lastIpcObject.specialWorkspace?.id ?? 0
     readonly property var wsIds: {
@@ -165,6 +166,7 @@ Item {
             activeWsId: root.activeSpecialId
             ws: modelData
             monitor: root.monitor
+            screen: root.screen
             offMonitorColour: Colours.palette.m3outline
             displayType: Config.bar.workspaces.specialDisplayType
             showWindows: Config.bar.workspaces.showWindowsOnSpecialWorkspaces

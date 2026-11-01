@@ -21,6 +21,7 @@ Item {
     required property int activeWsId
     required property int ws
     required property HyprlandMonitor monitor
+    required property ShellScreen screen
 
     required property int displayType
     required property bool showWindows
@@ -288,7 +289,7 @@ Item {
                     }
 
                     function showWindowPreview(): void {
-                        const components = ShellState.componentsFor(QsWindow.window.screen);
+                        const components = ShellState.componentsFor(root.screen);
                         const popouts = components?.panels?.popouts;
                         const bar = components?.bar;
                         if (!popouts || !bar)
