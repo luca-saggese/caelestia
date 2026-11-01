@@ -31,6 +31,19 @@ PageBase {
             onToggled: Colours.setMode(checked ? "dark" : "light")
         }
 
+        SectionHeader {
+            text: Tr.tr("Window appearance")
+        }
+
+        ToggleRow {
+            first: true
+            last: true
+            text: Tr.tr("Floating windows with title bar")
+            subtext: Tr.tr("Use native Hyprland floating windows and a Caelestia-coloured title bar")
+            checked: WindowDecorSettings.enabled
+            onToggled: WindowDecorSettings.setEnabled(checked)
+        }
+
         // Dynamic colours
         SectionHeader {
             text: Tr.tr("Dynamic colours")
