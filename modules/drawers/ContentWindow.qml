@@ -220,10 +220,20 @@ StyledWindow {
         }
         windows: [root]
         onCleared: {
+            // Closing the app-menu popout also releases its focus grab. If the
+            // dashboard opened from hover in the meantime, keep it open while
+            // the pointer is still in its trigger area instead of clearing it
+            // as a side effect of the app-menu dismissal.
+            const dashboardHovered = root.screenState.dashboard
+                && root.contentItem.Config.dashboard.enabled
+                && root.contentItem.Config.dashboard.showOnHover
+                && interactions.inEdgePanel(panels.dashboard, panels.dashboard.atTop, interactions.mouseX, interactions.mouseY);
+
             root.screenState.launcher = false;
             root.screenState.session = false;
             root.screenState.sidebar = false;
-            root.screenState.dashboard = false;
+            if (!dashboardHovered)
+                root.screenState.dashboard = false;
             panels.popouts.hasCurrent = false;
             bar.closeTray();
         }
