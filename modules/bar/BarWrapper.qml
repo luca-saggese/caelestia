@@ -21,6 +21,10 @@ Item {
     // with it rather than its "Desktop" placeholder floating alone once there's nothing in the
     // middle to anchor it to
     required property bool middleHidden
+    required property bool joinedLeft
+    required property bool joinedRight
+    required property bool joinedTop
+    required property bool joinedBottom
 
     readonly property int position: Config.bar.position
     readonly property bool onLeft: position === BarPosition.Left
@@ -31,26 +35,33 @@ Item {
 
     readonly property bool disabled: Strings.testRegexList(Config.bar.excludedScreens, screen.name)
 
-    // How far the bar reaches in from its screen edge; animates between the border thickness and the full bar
-    property real thickness: fullscreen ? 0 : (Config.border.thickness / 2)
+    // A shared edge has no frame band; a revealed bar still extends inward from that edge.
+    readonly property real borderInsetLeft: joinedLeft ? 0 : borderThickness
+    readonly property real borderInsetRight: joinedRight ? 0 : borderThickness
+    readonly property real borderInsetTop: joinedTop ? 0 : borderThickness
+    readonly property real borderInsetBottom: joinedBottom ? 0 : borderThickness
+    readonly property real borderAtBarEdge: onLeft ? borderInsetLeft : onRight ? borderInsetRight : onTop ? borderInsetTop : borderInsetBottom
+
+    // How far the bar reaches in from its screen edge; animates between the edge's border inset and the full bar
+    property real thickness: fullscreen ? 0 : borderAtBarEdge
     readonly property real clampedThickness: Math.max(Config.border.minThickness, thickness)
     readonly property int padding: Math.max(Tokens.padding.small, (Config.border.thickness / 2))
     readonly property int contentThickness: Tokens.sizes.bar.innerWidth + padding * 2
-    readonly property int exclusiveZone: !disabled && (Config.bar.persistent || screenState.bar) ? contentThickness : (Config.border.thickness / 2)
+    readonly property int exclusiveZone: !disabled && (Config.bar.persistent || screenState.bar) ? contentThickness : borderAtBarEdge
     readonly property bool shouldBeVisible: !fullscreen && !disabled && (Config.bar.persistent || screenState.bar || isHovered)
     property bool isHovered
 
     // Space taken from each screen edge, used to position everything that lives inside the frame
-    readonly property real insetLeft: onLeft ? thickness : borderThickness
-    readonly property real insetRight: onRight ? thickness : borderThickness
-    readonly property real insetTop: onTop ? thickness : borderThickness
-    readonly property real insetBottom: onBottom ? thickness : borderThickness
+    readonly property real insetLeft: onLeft ? thickness : borderInsetLeft
+    readonly property real insetRight: onRight ? thickness : borderInsetRight
+    readonly property real insetTop: onTop ? thickness : borderInsetTop
+    readonly property real insetBottom: onBottom ? thickness : borderInsetBottom
 
     // The empty stretch of the bar between its two ends (see Bar/HBar), and how far the bar sticks out past the plain border
     readonly property real middleStart: content.item?.middleStart ?? 0
     readonly property real middleEnd: content.item?.middleEnd ?? 0
     readonly property bool hasMiddle: content.item?.hasMiddle ?? false
-    readonly property real cutDepth: Math.max(0, thickness - borderThickness)
+    readonly property real cutDepth: Math.max(0, thickness - borderAtBarEdge)
 
     // Same as above but never below the minimum hover thickness (for input regions)
     readonly property real clampedInsetLeft: onLeft ? clampedThickness : Config.border.clampedThickness
@@ -123,7 +134,7 @@ Item {
         id: strip
 
         clip: true
-        visible: root.thickness > (Config.border.thickness / 2)
+        visible: root.thickness > root.borderAtBarEdge
 
         x: root.onRight ? root.width - root.thickness : 0
         y: root.onBottom ? root.height - root.thickness : 0

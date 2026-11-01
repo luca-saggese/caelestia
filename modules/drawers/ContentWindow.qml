@@ -22,6 +22,42 @@ StyledWindow {
     readonly property ScreenState screenState: ShellState.forScreen(screen)
 
     readonly property HyprlandMonitor monitor: Hypr.monitorFor(screen)
+    // Logical monitor rectangles drive shared frame edges. A touching edge is
+    // interior to the desktop and must be left open so the per-screen frames
+    // read as one continuous outline.
+    readonly property var monitorRects: {
+        Hyprctl.monitors;
+        return Monitors.currentRects();
+    }
+    readonly property var screenRect: monitorRects.find(m => m.name === screen.name) ?? null
+
+    function hasAdjacentScreenAt(edge: string): bool {
+        const current = screenRect;
+        if (!current)
+            return false;
+
+        return monitorRects.some(other => {
+            if (other.id === current.id)
+                return false;
+            if (edge === "left" || edge === "right") {
+                const overlapsVertically = Math.min(current.y + current.h, other.y + other.h) > Math.max(current.y, other.y);
+                if (!overlapsVertically)
+                    return false;
+                return edge === "left" ? Math.abs(other.x + other.w - current.x) <= 1 : Math.abs(current.x + current.w - other.x) <= 1;
+            }
+
+            const overlapsHorizontally = Math.min(current.x + current.w, other.x + other.w) > Math.max(current.x, other.x);
+            if (!overlapsHorizontally)
+                return false;
+            return edge === "top" ? Math.abs(other.y + other.h - current.y) <= 1 : Math.abs(current.y + current.h - other.y) <= 1;
+        });
+    }
+
+    readonly property bool joinedLeft: hasAdjacentScreenAt("left")
+    readonly property bool joinedRight: hasAdjacentScreenAt("right")
+    readonly property bool joinedTop: hasAdjacentScreenAt("top")
+    readonly property bool joinedBottom: hasAdjacentScreenAt("bottom")
+
     readonly property bool hasSpecialWorkspace: (monitor?.lastIpcObject.specialWorkspace?.name.length ?? 0) > 0
     readonly property bool hasFullscreenOnNormalWs: monitor?.activeWorkspace?.toplevels.values.some(t => t.lastIpcObject.fullscreen > 1) ?? false
     readonly property bool hasFullscreen: {
@@ -434,6 +470,10 @@ StyledWindow {
             fullscreen: root.hasFullscreen
             borderThickness: root.borderThickness
             middleHidden: root.middleHidden
+            joinedLeft: root.joinedLeft
+            joinedRight: root.joinedRight
+            joinedTop: root.joinedTop
+            joinedBottom: root.joinedBottom
         }
     }
 

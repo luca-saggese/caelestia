@@ -20,6 +20,23 @@ PageBase {
         width: root.cappedWidth
         spacing: Tokens.spacing.large
 
+        ColumnLayout {
+            Layout.fillWidth: true
+            spacing: Tokens.spacing.extraSmall
+
+            SectionHeader {
+                text: qsTr("Arrangement")
+            }
+
+            StyledText {
+                Layout.fillWidth: true
+                text: qsTr("Drag the displays to match their physical positions, then apply the arrangement.")
+                color: Colours.palette.m3onSurfaceVariant
+                font: Tokens.font.body.medium
+                wrapMode: Text.WordWrap
+            }
+        }
+
         ClippingRectangle {
             id: arranger
 

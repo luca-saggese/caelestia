@@ -61,11 +61,11 @@ Item {
                     readonly property var barRef: ShellState.componentsFor(root.screen)?.bar
 
                     anchors.fill: parent
-                    anchors.margins: (Config.border.thickness / 2)
-                    anchors.leftMargin: (barRef?.onLeft ? barRef.exclusiveZone : (Config.border.thickness / 2)) + Tokens.spacing.small * Config.background.visualiser.spacing
-                    anchors.rightMargin: barRef?.onRight ? barRef.exclusiveZone : (Config.border.thickness / 2)
-                    anchors.topMargin: barRef?.onTop ? barRef.exclusiveZone : (Config.border.thickness / 2)
-                    anchors.bottomMargin: barRef?.onBottom ? barRef.exclusiveZone : (Config.border.thickness / 2)
+                    anchors.margins: Math.max(barRef?.borderInsetLeft ?? (Config.border.thickness / 2), barRef?.borderInsetRight ?? (Config.border.thickness / 2), barRef?.borderInsetTop ?? (Config.border.thickness / 2), barRef?.borderInsetBottom ?? (Config.border.thickness / 2))
+                    anchors.leftMargin: (barRef?.onLeft ? barRef.exclusiveZone : (barRef?.borderInsetLeft ?? (Config.border.thickness / 2))) + Tokens.spacing.small * Config.background.visualiser.spacing
+                    anchors.rightMargin: barRef?.onRight ? barRef.exclusiveZone : (barRef?.borderInsetRight ?? (Config.border.thickness / 2))
+                    anchors.topMargin: barRef?.onTop ? barRef.exclusiveZone : (barRef?.borderInsetTop ?? (Config.border.thickness / 2))
+                    anchors.bottomMargin: barRef?.onBottom ? barRef.exclusiveZone : (barRef?.borderInsetBottom ?? (Config.border.thickness / 2))
 
                     values: Audio.cava.values
                     primaryColor: Qt.alpha(Colours.palette.m3primary, 0.7)
