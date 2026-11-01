@@ -128,5 +128,20 @@ PageBase {
             checked: Colours.transparency.enabled
             onToggled: GlobalConfig.appearance.transparency.enabled = checked
         }
+
+        SectionHeader {
+            Layout.topMargin: Tokens.spacing.large
+            first: true
+            text: Tr.tr("Window appearance")
+        }
+
+        ToggleRow {
+            first: true
+            last: true
+            text: Tr.tr("Floating windows with title bar")
+            subtext: Tr.tr("Use native Hyprland floating windows and a Caelestia-coloured title bar")
+            checked: WindowDecorSettings.enabled
+            onToggled: WindowDecorSettings.setEnabled(checked)
+        }
     }
 }

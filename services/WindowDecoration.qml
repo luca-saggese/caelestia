@@ -14,10 +14,25 @@ Singleton {
     property bool initialized: false
 
     Timer {
-        interval: 250
+        interval: 1000
         repeat: true
         running: root.enabled
         onTriggered: root.refreshWindows()
+    }
+
+    Timer {
+        id: applyRefreshedWindowsTimer
+        interval: 150
+        repeat: false
+        onTriggered: root.applyRefreshedWindows()
+    }
+
+    Connections {
+        target: Hyprland
+        function onRawEvent(event): void {
+            if (root.enabled && event.name === "openwindow")
+                root.refreshWindows();
+        }
     }
 
     Connections {
@@ -98,6 +113,16 @@ Singleton {
     }
 
     function refreshWindows(): void {
+        if (!root.enabled)
+            return;
+
+        // lastIpcObject is a cached snapshot. The first client in a session
+        // can otherwise retain its pre-float state until another window event.
+        Hyprland.refreshToplevels();
+        applyRefreshedWindowsTimer.restart();
+    }
+
+    function applyRefreshedWindows(): void {
         if (!root.enabled)
             return;
 
