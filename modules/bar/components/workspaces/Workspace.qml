@@ -4,15 +4,12 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Hyprland
-import Quickshell.Wayland
-import Caelestia.Blobs
 import M3Shapes
 import Caelestia.Components
 import Caelestia.Config
 import Caelestia.I18n
 import qs.components
 import qs.components.controls
-import qs.components.effects
 import qs.services
 import qs.utils
 
@@ -231,9 +228,6 @@ Item {
                     required property var modelData
                     required property int index // Needed, LazyListView will fail to set it if it doesn't exist
 
-                    property bool previewOpen: false
-                    property bool previewHovered: false
-
                     grade: 0
                     horizontalAlignment: Text.AlignHCenter
                     text: Icons.getAppCategoryIcon(modelData.lastIpcObject.class, "terminal")
@@ -293,6 +287,20 @@ Item {
                             : `closewindow address:${address}`);
                     }
 
+                    function showWindowPreview(): void {
+                        const components = ShellState.componentsFor(QsWindow.window.screen);
+                        const popouts = components?.panels?.popouts;
+                        const bar = components?.bar;
+                        if (!popouts || !bar)
+                            return;
+
+                        const center = mapToItem(bar, width / 2, height / 2);
+                        popouts.windowPreviewClient = modelData;
+                        popouts.currentName = "windowpreview";
+                        popouts.currentCenter = bar.vertical ? center.y : center.x;
+                        popouts.hasCurrent = true;
+                    }
+
                     MouseArea {
                         id: iconMouse
                         anchors.fill: parent
@@ -300,11 +308,7 @@ Item {
                         hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
 
-                        onEntered: {
-                            hidePreviewTimer.stop();
-                            windowButton.previewOpen = true;
-                        }
-                        onExited: hidePreviewTimer.restart()
+                        onEntered: windowButton.showWindowPreview()
                         onClicked: event => {
                             if (event.button === Qt.RightButton)
                                 contextMenu.expanded = true;
@@ -338,150 +342,6 @@ Item {
                         }
                     }
 
-                    Timer {
-                        id: hidePreviewTimer
-                        interval: 180
-                        onTriggered: {
-                            if (!iconMouse.containsMouse && !windowButton.previewHovered)
-                                windowButton.previewOpen = false;
-                        }
-                    }
-
-                    BlobRect {
-                        id: previewBlob
-
-                        parent: QsWindow.window.contentItem
-                        group: QsWindow.window.previewBlobGroup
-                        x: preview.x
-                        y: preview.y
-                        implicitWidth: preview.width
-                        implicitHeight: preview.height
-                        radius: Tokens.rounding.extraLarge
-                        deformScale: (0.1 * Config.appearance.deformScale) / 10000
-                        visible: preview.visible
-                    }
-
-                    Item {
-                        id: preview
-
-                        parent: QsWindow.window.contentItem
-                        readonly property point iconPosition: windowButton.mapToItem(parent, 0, 0)
-                        readonly property real screenMargin: Math.min(Tokens.padding.large, Math.min(parent.width, parent.height) / 20)
-
-                        width: Math.max(1, Math.min(270, parent.width - screenMargin * 2))
-                        height: Math.max(1, Math.min(190, parent.height - screenMargin * 2))
-                        x: {
-                            const gap = Tokens.padding.medium;
-                            const right = iconPosition.x + windowButton.width + gap;
-                            const left = iconPosition.x - width - gap;
-                            if (right + width <= parent.width - screenMargin)
-                                return right;
-                            if (left >= screenMargin)
-                                return left;
-                            return Math.max(screenMargin, Math.min(right, parent.width - width - screenMargin));
-                        }
-                        y: Math.max(screenMargin, Math.min(iconPosition.y + windowButton.height / 2 - height / 2, parent.height - height - screenMargin))
-                        z: 10000
-                        visible: windowButton.previewOpen || opacity > 0.001
-                        opacity: windowButton.previewOpen ? 1 : 0
-                        scale: windowButton.previewOpen ? 1 : 0.98
-
-                        Behavior on opacity {
-                            NumberAnimation {
-                                duration: 120
-                                easing.type: Easing.OutCubic
-                                alwaysRunToEnd: true
-                            }
-                        }
-
-                        Behavior on scale {
-                            NumberAnimation {
-                                duration: 120
-                                easing.type: Easing.OutCubic
-                                alwaysRunToEnd: true
-                            }
-                        }
-
-                        StyledRect {
-                            anchors.fill: parent
-                            anchors.margins: Tokens.padding.extraSmall
-                            radius: Tokens.rounding.large
-                            color: Colours.palette.m3surfaceContainer
-                            clip: true
-                            border.width: 1
-                            border.color: Colours.palette.m3outlineVariant
-
-                            Elevation {
-                                anchors.fill: parent
-                                radius: Tokens.rounding.large
-                                level: 3
-                            }
-
-                            ColumnLayout {
-                                anchors.fill: parent
-                                anchors.margins: Tokens.padding.small
-                                spacing: Tokens.spacing.extraSmall
-
-                                RowLayout {
-                                    Layout.fillWidth: true
-                                    spacing: Tokens.spacing.small
-
-                                    MaterialIcon {
-                                        text: windowButton.text
-                                        color: Colours.palette.m3primary
-                                    }
-
-                                    StyledText {
-                                        Layout.fillWidth: true
-                                        text: windowButton.modelData.title || windowButton.modelData.lastIpcObject.class || Tr.tr("Window")
-                                        color: Colours.palette.m3onSurface
-                                        elide: Text.ElideRight
-                                    }
-                                }
-
-                                ClipRect {
-                                    Layout.fillWidth: true
-                                    Layout.fillHeight: true
-                                    color: Colours.palette.m3surfaceContainerHighest
-                                    radius: Tokens.rounding.medium
-
-                                    ScreencopyView {
-                                        id: screencopy
-                                        anchors.fill: parent
-                                        anchors.margins: Tokens.padding.extraSmall
-                                        captureSource: preview.visible ? windowButton.modelData.wayland : null
-                                        live: preview.visible
-                                        constraintSize: Qt.size(250, 145)
-                                    }
-
-                                    Loader {
-                                        anchors.centerIn: parent
-                                        active: !screencopy.hasContent
-
-                                        sourceComponent: StyledText {
-                                            text: Tr.tr("Preview unavailable")
-                                            color: Colours.palette.m3onSurfaceVariant
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        MouseArea {
-                            anchors.fill: parent
-                            enabled: windowButton.previewOpen
-                            hoverEnabled: true
-                            acceptedButtons: Qt.NoButton
-                            onEntered: {
-                                windowButton.previewHovered = true;
-                                hidePreviewTimer.stop();
-                            }
-                            onExited: {
-                                windowButton.previewHovered = false;
-                                hidePreviewTimer.restart();
-                            }
-                        }
-                    }
                 }
             }
         }

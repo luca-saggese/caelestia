@@ -18,7 +18,6 @@ StyledWindow {
 
     readonly property alias bar: bar
     readonly property alias interactionWrapper: interactions
-    readonly property alias previewBlobGroup: blobGroup
 
     readonly property ScreenState screenState: ShellState.forScreen(screen)
 
