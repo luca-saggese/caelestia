@@ -134,7 +134,11 @@ Item {
     rotation: onVerticalBar && inBarProg > 0.5 ? (barRef.onLeft ? -90 : 90) : 0
 
     Behavior on rotation {
-        Anim {}
+        NumberAnimation {
+            duration: 180
+            easing.type: Easing.OutCubic
+            alwaysRunToEnd: true
+        }
     }
 
     implicitWidth: content.implicitWidth
@@ -144,7 +148,11 @@ Item {
     opacity: 1 - offsetScale
 
     Behavior on offsetScale {
-        Anim {}
+        NumberAnimation {
+            duration: 200
+            easing.type: Easing.OutCubic
+            alwaysRunToEnd: true
+        }
     }
 
     // Fluidly resize (rather than snap) when the track title's length changes
@@ -154,13 +162,21 @@ Item {
     Behavior on implicitWidth {
         enabled: !root.morphing
 
-        Anim {}
+        NumberAnimation {
+            duration: 160
+            easing.type: Easing.OutCubic
+            alwaysRunToEnd: true
+        }
     }
 
     Behavior on implicitHeight {
         enabled: !root.morphing
 
-        Anim {}
+        NumberAnimation {
+            duration: 160
+            easing.type: Easing.OutCubic
+            alwaysRunToEnd: true
+        }
     }
 
     Connections {

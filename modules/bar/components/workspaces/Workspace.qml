@@ -5,6 +5,7 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Wayland
+import Caelestia.Blobs
 import M3Shapes
 import Caelestia.Components
 import Caelestia.Config
@@ -346,17 +347,60 @@ Item {
                         }
                     }
 
-                    PopupWindow {
+                    BlobRect {
+                        id: previewBlob
+
+                        parent: QsWindow.window.contentItem
+                        group: QsWindow.window.previewBlobGroup
+                        x: preview.x
+                        y: preview.y
+                        implicitWidth: preview.width
+                        implicitHeight: preview.height
+                        radius: Tokens.rounding.extraLarge
+                        deformScale: (0.1 * Config.appearance.deformScale) / 10000
+                        visible: preview.visible
+                    }
+
+                    Item {
                         id: preview
 
-                        anchor.item: windowButton
-                        anchor.edges: Edges.Right
-                        anchor.gravity: Edges.Right
-                        anchor.adjustment: PopupAdjustment.All
-                        implicitWidth: 270
-                        implicitHeight: 190
-                        visible: windowButton.previewOpen
-                        color: "transparent"
+                        parent: QsWindow.window.contentItem
+                        readonly property point iconPosition: windowButton.mapToItem(parent, 0, 0)
+                        readonly property real screenMargin: Math.min(Tokens.padding.large, Math.min(parent.width, parent.height) / 20)
+
+                        width: Math.max(1, Math.min(270, parent.width - screenMargin * 2))
+                        height: Math.max(1, Math.min(190, parent.height - screenMargin * 2))
+                        x: {
+                            const gap = Tokens.padding.medium;
+                            const right = iconPosition.x + windowButton.width + gap;
+                            const left = iconPosition.x - width - gap;
+                            if (right + width <= parent.width - screenMargin)
+                                return right;
+                            if (left >= screenMargin)
+                                return left;
+                            return Math.max(screenMargin, Math.min(right, parent.width - width - screenMargin));
+                        }
+                        y: Math.max(screenMargin, Math.min(iconPosition.y + windowButton.height / 2 - height / 2, parent.height - height - screenMargin))
+                        z: 10000
+                        visible: windowButton.previewOpen || opacity > 0.001
+                        opacity: windowButton.previewOpen ? 1 : 0
+                        scale: windowButton.previewOpen ? 1 : 0.98
+
+                        Behavior on opacity {
+                            NumberAnimation {
+                                duration: 120
+                                easing.type: Easing.OutCubic
+                                alwaysRunToEnd: true
+                            }
+                        }
+
+                        Behavior on scale {
+                            NumberAnimation {
+                                duration: 120
+                                easing.type: Easing.OutCubic
+                                alwaysRunToEnd: true
+                            }
+                        }
 
                         StyledRect {
                             anchors.fill: parent
@@ -366,24 +410,6 @@ Item {
                             clip: true
                             border.width: 1
                             border.color: Colours.palette.m3outlineVariant
-                            opacity: preview.visible ? 1 : 0
-                            scale: preview.visible ? 1 : 0.96
-
-                            Behavior on opacity {
-                                NumberAnimation {
-                                    duration: 120
-                                    easing.type: Easing.OutCubic
-                                    alwaysRunToEnd: true
-                                }
-                            }
-
-                            Behavior on scale {
-                                NumberAnimation {
-                                    duration: 120
-                                    easing.type: Easing.OutCubic
-                                    alwaysRunToEnd: true
-                                }
-                            }
 
                             Elevation {
                                 anchors.fill: parent
@@ -443,6 +469,7 @@ Item {
 
                         MouseArea {
                             anchors.fill: parent
+                            enabled: windowButton.previewOpen
                             hoverEnabled: true
                             acceptedButtons: Qt.NoButton
                             onEntered: {

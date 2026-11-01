@@ -18,6 +18,7 @@ StyledWindow {
 
     readonly property alias bar: bar
     readonly property alias interactionWrapper: interactions
+    readonly property alias previewBlobGroup: blobGroup
 
     readonly property ScreenState screenState: ShellState.forScreen(screen)
 
@@ -117,8 +118,10 @@ StyledWindow {
     // No overshoot here: the frame's thickness follows this, and a bouncy curve makes the blobs smooth the
     // overshoot into a wobbly ramp at the ends of the bar
     Behavior on middleProg {
-        Anim {
-            type: Anim.DefaultEffects
+        NumberAnimation {
+            duration: 180
+            easing.type: Easing.OutCubic
+            alwaysRunToEnd: true
         }
     }
 
@@ -127,8 +130,10 @@ StyledWindow {
     property real notchMorph: desktopEmpty ? 1 : 0
 
     Behavior on notchMorph {
-        Anim {
-            type: Anim.DefaultEffects
+        NumberAnimation {
+            duration: 180
+            easing.type: Easing.OutCubic
+            alwaysRunToEnd: true
         }
     }
 
