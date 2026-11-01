@@ -352,7 +352,7 @@ Item {
                         anchor.item: windowButton
                         anchor.edges: Edges.Right
                         anchor.gravity: Edges.Right
-                        anchor.adjustment: PopupAdjustment.Slide
+                        anchor.adjustment: PopupAdjustment.All
                         implicitWidth: 270
                         implicitHeight: 190
                         visible: windowButton.previewOpen
@@ -364,17 +364,25 @@ Item {
                             radius: Tokens.rounding.large
                             color: Colours.palette.m3surfaceContainer
                             clip: true
+                            border.width: 1
+                            border.color: Colours.palette.m3outlineVariant
                             opacity: preview.visible ? 1 : 0
                             scale: preview.visible ? 1 : 0.96
 
                             Behavior on opacity {
-                                Anim {
-                                    type: Anim.DefaultEffects
+                                NumberAnimation {
+                                    duration: 120
+                                    easing.type: Easing.OutCubic
+                                    alwaysRunToEnd: true
                                 }
                             }
 
                             Behavior on scale {
-                                Anim {}
+                                NumberAnimation {
+                                    duration: 120
+                                    easing.type: Easing.OutCubic
+                                    alwaysRunToEnd: true
+                                }
                             }
 
                             Elevation {
