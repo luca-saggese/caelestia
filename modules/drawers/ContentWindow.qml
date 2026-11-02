@@ -199,7 +199,6 @@ StyledWindow {
         bar: bar
         panels: panels
         win: root
-        menuStrip: appMenuBar
     }
 
     HyprlandFocusGrab {
